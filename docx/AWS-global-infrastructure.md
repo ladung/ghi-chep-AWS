@@ -1,7 +1,8 @@
 # AWS Global Infrastrucure
 - AWS là một nền tảng điện toán đám mây (cloud computing platform) trên phạm vi toàn cầu
 - AWS cloud infrastructure được xây dựng ở các Region trên toàn thế giới.
-- Theo số liệu năm 2022, AWS đã đưa vào hoạt động khoản 80 AZ với 25 Region trên toàn thế giới.
+- Theo số liệu năm 2022, AWS đã đưa vào hoạt động khoản 84 AZ với 26 Region trên toàn thế giới.
+![alts](../images/region_az_count.png)
 - The following are the components that make up the AWS infrastructure:
 ![alts](../images/component_aws_infra.png)
 **Avaibility Zone (AZ)**
