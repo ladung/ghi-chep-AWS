@@ -67,6 +67,88 @@
   - ```Service control policies (SCPs)```: [Tham khảo](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_scp)
   - ```Access control lists (ACLs)```: [Tham khảo](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_acl)
   - ```Session policies```: [Tham khảo](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session)
+  
+**<ins>Lưu ý</ins>**
+  - AWS account root có thể bị ảnh hưởng bời một số loại policies còn loại khác thì không. Ví dụ: không thể attach Identity-based policies tới root user, tuy nhiên có thể chỉ định root user như một principal trong Resource-based policies. A root user is still the member of an account. If that account is a member of an organization in AWS Organizations, the root user is affected by any SCPs for the account.
+
+# JSON policy document structure
+- Một JSON policy document bao gồm:
+  ![alts](../images/json_policy.png)
+
+  - Mỗi một statement bao gồm một permission duy nhất. Nếu một policy bao gồm nhiều statements, AWS sẽ áp dụng toán tử ```OR``` cho các statement.
+
+*Ví dụ*
+```
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Effect":"Allow",
+         "Action":"ec2:Describe*",
+         "Resource":"*"
+      },
+      {
+         "Effect":"Allow",
+         "Action":"elasticloadbalancing:Describe*",
+         "Resource":"*"
+      },
+      {
+         "Effect":"Allow",
+         "Action":[
+            "cloudwatch:ListMetrics",
+            "cloudwatch:GetMetricStatistics",
+            "cloudwatch:Describe*"
+         ],
+         "Resource":"*"
+      }
+   ]
+}
+```
+
+ - ```Version```: Định nghĩa version của policy language mà bạn muốn sử dụng. As a best practice, use the latest 2012-10-17 version.
+ - ```Statement```: Main policy element để chứa các element sau. Có thể bao gồm 1 or nhiều statement trong 1 policy
+ - ```Sid```(Optional): phân biệt giữa các statement
+ - ```Effect```: Sử dụng ```Allow``` or ```Deny``` để chỉ ra hành động cho phép hay từ chối
+ - ```Principal``` (Required in only some circumstances): Nếu sử dụng resource-based policy, cần phải chỉ định account, user, role or federated user mà bạn muốn cho phép hay từ chối. IAM policy không thể chứ element này.
+ - ```Action```: Danh sách các action mà policy allow hay deny.
+ - ```Resource``` (Required in only some circumstances): Với IAM polcy, càn chỉ định một danh sách các resource cụ thể đẻ áp dụng cho action. Với resource-based policy, element này là optional. Nếu không có thì resource mà acction apply là resource mà policy attach.
+ - ```Condition```: Specify the circumstances under which the policy grants permission.
+
+# Multiple statements and multiple policies
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FirstStatement",
+      "Effect": "Allow",
+      "Action": ["iam:ChangePassword"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SecondStatement",
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ThirdStatement",
+      "Effect": "Allow",
+      "Action": [
+        "s3:List*",
+        "s3:Get*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::confidential-data",
+        "arn:aws:s3:::confidential-data/*"
+      ],
+      "Condition": {"Bool": {"aws:MultiFactorAuthPresent": "true"}}
+    }
+  ]
+}
+```
+
 # Tham khảo:
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/intro-structure.html#intro-structure-principal
